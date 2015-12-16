@@ -37,7 +37,7 @@ maxy: (northern longitude)
 
 Coordinates should be in WGS84.
 
-The `example/` directory has an example file with boundaries around two well-known universities.
+The `example/` directory has an example file with boundaries around Boston and Oxford.
 
 ## Creating a query
 
@@ -95,7 +95,16 @@ make svgs SCALE=1000 # really small
 
 ## Adding style
 
-The default `style.css` creates simple black line drawings. Edit it to create more elaborate styles SVGs. Use the STYLE option to use another file: `make svgs STYLE=other.css`.
+`SVGIS` can style output svgs features based on their properties, but `ogr2ogr` needs to told explicitly which keys to read from the OSM file. This is controlled by the config file `osm.ini`. For instance, to include the `highway` key, often seen on roads and ways, add 'highway' to the `attributes` row in in the `[lines]` section.
+
+The default `style.css` creates simple black line drawings. Edit it to create more elaborately styled SVGs. Use the STYLE option to use another file: `make svgs STYLE=other.css`.
+
+Because of the limitations of how ImageMagick parses SVGs, the ID field isn't available. It is possible to use OSM attribtues to style features. For example:
+````
+make svgs DRAWFLAGS=--class-fields=bicycle
+````
+
+This will produce an SVG with classes like `bicycle_no` and `bicycle_permissive`. The included `style.css` includes a rule for drawing this kind of line in red. Read the [SVGIS](https://github.com/fitnr/svgis) documentation for more.
 
 ## License
 

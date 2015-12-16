@@ -1,6 +1,6 @@
 [out:xml][timeout:60];
 (
-    way[highway=footway]({{bbox}});
+    way[highway=cycleway]({{bbox}});
 );
 out body;
 >;

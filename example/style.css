@@ -5,3 +5,9 @@ path {
     stroke-linejoin: round;
     stroke-width: 1px;
 }
+.surface_None {
+    stroke: gray;
+}
+.surface_asphalt {
+    stroke: blue;
+}

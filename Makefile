@@ -52,7 +52,6 @@ REPAGEFLAGS = -trim +repage
 BORDERFLAGS = -bordercolor white -border $(BORDER)x$(BORDER)
 
 DRAWFLAGS = --no-viewbox
-STYLE = style.css
 
 TASKS = qls osms shps geojsons svgs pngs epss
 
@@ -82,8 +81,8 @@ GEO = shp
 FMT.geojson = GeoJSON
 FMT.shp = "ESRI Shapefile"
 
-$(PREFIX)/svg/%.svg: $(PREFIX)/$(GEO)/%.$(GEO) $(STYLE) | $(PREFIX)/svg
-	$(DRAW) --project local --padding 10 --scale $(SCALE) --style $(STYLE) $(DRAWFLAGS) $< -o $@
+$(PREFIX)/svg/%.svg: $(PREFIX)/$(GEO)/%.$(GEO) $(STYLEFILE) | $(PREFIX)/svg
+	$(DRAW) --project local --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $< -o $@
 
 $(PREFIX)/shp/%.shp $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/%.osm | $$(@D)
 	@rm -f $@
