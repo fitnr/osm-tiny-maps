@@ -106,6 +106,16 @@ make svgs DRAWFLAGS=--class-fields=bicycle
 
 This will produce an SVG with classes like `bicycle_no` and `bicycle_permissive`. The included `style.css` includes a rule for drawing this kind of line in red. Read the [SVGIS](https://github.com/fitnr/svgis) documentation for more.
 
+## Projections
+
+By default, maps are drawn in comparable Transverse Mercator projections. To use a custom projection, use pass additional options to `svgis draw`:
+````bash
+# New York state plane
+make svgs DRAWFLAGS=--project=EPSG:4456
+# local UTM projection
+make svgs DRAWFLAGS=--project=utm
+````
+
 ## License
 
 Copyright (C) 2015, Neil Freeman. Available under the [GNU General Public License, version 3](http://www.gnu.org/licenses/gpl.html).
