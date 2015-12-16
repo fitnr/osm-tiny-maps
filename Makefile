@@ -95,8 +95,7 @@ $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 
 $(PREFIX)/ql/%.ql: | $(PREFIX)/ql
 	read BBOX <<<$$($(JQ) '.$* | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(",")' $(BOUNDSFILE)); \
-	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g" \
-	-e 's/^ *//' -e 's,/\*[^*]*\*/,,g' $(QUERYFILE) | tr -d '\n' > $@
+	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g" $(QUERYFILE) > $@
 
 ql osm svg shp geojson png: ; mkdir -p $@
 
