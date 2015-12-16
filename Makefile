@@ -43,7 +43,7 @@ DRAW = $(ENV)/svgis draw
 # png files to generate
 PNGS = $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(LOCATIONS)))
 
-SCALE = 20
+SCALE = 10
 
 DENSITY = 576
 

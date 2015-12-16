@@ -87,9 +87,9 @@ You may find that it's slightly faster to run `make osms && make pngs -j 4`. Thi
 
 ## Different sizes
 
-The default scale is 20, which is essentially an arbitrary number. To get larger output PNGs, use a smaller scale, and vis versa:
+The default scale is 10, which is appropriate for a creating a small map of a neighborhood. To get larger output PNGs, use a smaller scale, and vis versa:
 ````
-make svgs SCALE=10 # really big
+make svgs SCALE=1 # really big
 make svgs SCALE=1000 # really small
 ````
 
