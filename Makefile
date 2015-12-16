@@ -105,7 +105,7 @@ clean: ; rm -rf ql osm svg shp geojson eps png
 install: | $(ENV)/activate
 	which gdalinfo || brew install gdal
 	. $|; \
-		pip list | grep svgis || pip install -r requirements.txt
+		pip list | grep svgis || pip install "svgis>=0.2.3,<1"
 	which $(CONVERT) || brew install Caskroom/cask/xquartz imagemagick
 	which jq || brew install jq
 
