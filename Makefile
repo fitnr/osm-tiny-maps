@@ -22,8 +22,8 @@ include config.ini
 API ?= http://overpass-api.de/api/interpreter
 CURLFLAGS = -s
 
-# List of cities we will download
-CITIES = $(shell $(JQ) keys[] $(BOUNDSFILE))
+# List of locations to target for download
+LOCATIONS = $(shell $(JQ) keys[] $(BOUNDSFILE))
 
 # valid options: ids, body, skel, tags, meta
 VERBOSITY ?= skel
@@ -41,7 +41,7 @@ RESTYLE = $(ENV)/svgis style
 DRAW = $(ENV)/svgis draw
 
 # png files to generate
-PNGS = $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(CITIES)))
+PNGS = $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(LOCATIONS)))
 
 SCALE = 20
 
@@ -63,13 +63,13 @@ info:
 	@echo config file: $(OSM_CONFIG_FILE)
 	@echo query template: $(QUERYFILE)
 	@echo bounds file: $(BOUNDSFILE)
-	@echo bounds count: $(words $(CITIES))
+	@echo bounds count: $(words $(LOCATIONS))
 	@echo available commands: $(TASKS)
 
 pngs: $(PNGS)
 
 .SECONDEXPANSION:
-qls osms epss shps geojsons svgs: %s: $(addsuffix .$$*,$(addprefix $(PREFIX)/%/,$(CITIES)))
+qls osms epss shps geojsons svgs: %s: $(addsuffix .$$*,$(addprefix $(PREFIX)/%/,$(LOCATIONS)))
 
 $(PREFIX)/png/%.png: $(PREFIX)/svg/%.svg | $(PREFIX)/png
 	$(CONVERT) $< -density $(DENSITY) $(REPAGEFLAGS) $(BORDERFLAGS) $@
