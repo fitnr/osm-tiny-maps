@@ -54,7 +54,9 @@ BORDERFLAGS = -bordercolor white -border $(BORDER)x$(BORDER)
 DRAWFLAGS = --no-viewbox
 STYLE = style.css
 
-.PHONY: all clean qls osms shps geojsons svgs pngs epss
+TASKS = qls osms shps geojsons svgs pngs epss
+
+.PHONY: all install clean $(TASKS)
 
 all: info
 info:
@@ -62,7 +64,7 @@ info:
 	@echo query template: $(QUERYFILE)
 	@echo bounds file: $(BOUNDSFILE)
 	@echo bounds count: $(words $(CITIES))
-	@echo available commands: qls, osms, svgs, shps, geojsons, epss, pngs
+	@echo available commands: $(TASKS)
 
 pngs: $(PNGS)
 
