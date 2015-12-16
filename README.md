@@ -1,7 +1,7 @@
 osm-tiny-maps
 =============
 
-Download slices of OSM data and create simliarly-scaled svg/png/eps graphics from the data.
+Download slices of OSM data and create similarly-scaled svg/png/eps graphics from the data.
 
 ## Installing
 
@@ -28,27 +28,27 @@ pip install -r requirements.txt
 
 The Makefile needs bounds to determine where to download, and expects a simple format that contains maximum and minimum coordinates:
 
-````json
-{
-    "key": {
-        "minx": 12.26,
-        "miny": 51.849,
-        "maxx": 14.699,
-        "maxy": 52.994
-    }
-}
+````
+minx: (western latitude)
+miny: (southern longitude)
+maxx: (eastern latitude)
+maxy: (northern longitude)
 ````
 
 Coordinates should be in WGS84.
+
+The `example/` directory has an example file with boundaries around two well-known universities.
 
 ## Creating a query
 
 See the [Overpass Turbo](http://overpass-turbo.eu) and the [OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide) for help in creating a query.
 
-This simple query searches for cafes:
+The example directory has a simple query that downloads pedestrian paths:
 ````
 [out:xml][timeout:60];
-(node["amenity"="cafe"]({{bbox}}););
+(
+    way[highway=footway]({{bbox}});
+);
 out body;
 >;
 out {{verbosity}} qt;
