@@ -1,19 +1,21 @@
 osm-tiny-maps
 =============
 
-Download slices of OSM data and create similarly-scaled svg/png/eps graphics from the data.
+Download slices of OSM data and create similarly-scaled svg/png/eps graphics from the data. Based on the workflow used to creating [subways at scale](http://fakeisthenewreal.org/subway/).
 
-## Installing
+### Install
 
-### OS X
+#### OS X
 
-Assumes you have [Make](https://www.gnu.org/software/make/), [Homebrew](http://brew.sh), [pip](http://pip.readthedocs.org/en/stable/installing/) and [virtualenv](https://github.com/pypa/virtualenv) installed. Make is installed alongside the XCode developer tools (install with `xcode-select --install`).
+Assumes you have [Make](https://www.gnu.org/software/make/), [Homebrew](http://brew.sh), [pip](http://pip.readthedocs.org/en/stable/installing/) and [virtualenv](https://github.com/pypa/virtualenv) installed.
+
+Make can be installed (alongside other useful tools) with `xcode-select --install`.
 
 ````
 make install
 ````
 
-### Other platforms
+#### Other platforms
 
 Install [GDAL](http://www.gdal.org), [ImageMagick](http://www.imagemagick.org/script/binary-releases.php), [JQ](https://stedolan.github.io/jq/). On Linux, you will probably be able to do something like `yum/apt-get install imagemagick gdal`.
 
@@ -24,7 +26,11 @@ make .env/activate
 pip install -r requirements.txt
 ````
 
-## Creating a bounds file
+### Building
+
+To build maps, you'll need two files: a bounds file and a query file. The bounds tells the `Makefile` where to download, and the query tells it what to download.
+
+#### Bounds
 
 The Makefile needs bounds to determine where to download, and expects a simple format that contains maximum and minimum coordinates:
 
@@ -39,7 +45,7 @@ Coordinates should be in WGS84.
 
 The `example/` directory has an example file with boundaries around Boston and Oxford.
 
-## Creating a query
+#### Queries
 
 See the [Overpass Turbo](http://overpass-turbo.eu) and the [OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide) for help in creating a query.
 
@@ -56,7 +62,7 @@ out {{verbosity}} qt;
 
 Note that the bounding box has been replaced by the `{{bbox}}` placeholder, likewise with the [verbosity](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide#Degree_of_verbosity). By default, `skel` will be used. If you want to download OSM data that can be edited (e.g. with [JOSM](https://josm.openstreetmap.de)), you can run commands with `VERBOSITY=meta` or `VERBOSITY=body`. Complete list of verbosity levels: ids, body, skel, tags, meta.
 
-## Creating images
+#### Fun part
 
 Once the bounds and query file are ready, save them in the same directory as the `Makefile` and add them to `conf.ini`:
 
@@ -74,18 +80,15 @@ bounds count: 140
 available commands: qls, osms, svgs, shps, geojsons, pngs
 ````
 
-Then, run one of:
-```
-make pngs
-make epss
-make svgs
-```
+Then, run one of the available commands, e.g: `make pngs`.
 
-This will create query files, download data, convert to SHP, to SVG, then to PNG or EPS, if necessary.
+This will create query files, download OSM data, convert to SHP, to SVG, then to PNG or EPS, if necessary.
 
-You may find that it's slightly faster to run `make osms && make pngs -j 4`. This will take advantage of parallel processing for the image manipulation steps. OpenStreetMap only allows one connection per IP address, so running parallel for that step won't work.
+You may find that it's slightly faster to run `make osms && make pngs -j 4`. This will take advantage of parallel processing for the image manipulation steps. OpenStreetMap only allows one connection per IP address, so running parallel for that step doesn't work.
 
-## Different sizes
+### Customizing
+
+#### Different sizes
 
 The default scale is 10, which is appropriate for a creating a small map of a neighborhood. To get larger output PNGs, use a smaller scale, and vis versa:
 ````
@@ -93,7 +96,7 @@ make svgs SCALE=1 # really big
 make svgs SCALE=1000 # really small
 ````
 
-## Adding style
+#### Styling
 
 `SVGIS` can style output svgs features based on their properties, but `ogr2ogr` needs to told explicitly which keys to read from the OSM file. This is controlled by the config file `osm.ini`. For instance, to include the `highway` key, often seen on roads and ways, add 'highway' to the `attributes` row in in the `[lines]` section.
 
@@ -106,7 +109,7 @@ make svgs DRAWFLAGS=--class-fields=bicycle
 
 This will produce an SVG with classes like `bicycle_no` and `bicycle_permissive`. The included `style.css` includes a rule for drawing this kind of line in red. Read the [SVGIS](https://github.com/fitnr/svgis) documentation for more.
 
-## Projections
+#### Projections
 
 By default, maps are drawn in comparable Transverse Mercator projections. To use a custom projection, use pass additional options to `svgis draw`:
 ````bash
@@ -116,6 +119,6 @@ make svgs DRAWFLAGS=--project=EPSG:4456
 make svgs DRAWFLAGS=--project=utm
 ````
 
-## License
+### License
 
 Copyright (C) 2015, Neil Freeman. Available under the [GNU General Public License, version 3](http://www.gnu.org/licenses/gpl.html).
