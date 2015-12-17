@@ -75,10 +75,10 @@ BOUNDSFILE = my_bounds.json
 
 To make sure that everything looks right, run: `make info`. This should print something like:
 ````
-config file: ini/osm.ini
-query template: query.ql
-bounds file: bounds.json
-bounds count: 140
+config file: example/osm.ini
+query template: example/query.ql
+bounds file: example/bounds.json
+bounds count: 2
 available commands: qls, osms, svgs, shps, geojsons, pngs
 ````
 
