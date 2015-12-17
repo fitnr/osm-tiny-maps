@@ -3,6 +3,8 @@ osm-tiny-maps
 
 Download slices of OSM data and create similarly-scaled svg/png/eps graphics from the data. Based on the workflow used to creating [subways at scale](http://fakeisthenewreal.org/subway/).
 
+This workflow is straightforward and serves my needs. You might find it useful if you want to download and process OSM data and/or edit lots of images, and think Make might be helpful. The `Makefile` is well documented, take a look.
+
 ### Install
 
 #### OS X
@@ -114,9 +116,9 @@ This will produce an SVG with classes like `bicycle_no` and `bicycle_permissive`
 By default, maps are drawn in comparable Transverse Mercator projections. To use a custom projection, use pass additional options to `svgis draw`:
 ````bash
 # New York state plane
-make svgs DRAWFLAGS=--project=EPSG:4456
+make svgs PROJECT=EPSG:4456
 # local UTM projection
-make svgs DRAWFLAGS=--project=utm
+make svgs PROJECT=utm
 ````
 
 ### License

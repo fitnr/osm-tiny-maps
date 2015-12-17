@@ -14,15 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# Useful for downloading another iteration of similar data
+# setting this will put all files in the named folder
 PREFIX = .
 
+# SVGIS runs from a virtualenv.
+# This isn't strictly necessary, but it's useful for people with complicated lives
+ENV = .env/bin
+
+# INI files are valid Make variable declarations
 include config.ini 
 
 # Overpass API endpoint
 API ?= http://overpass-api.de/api/interpreter
 CURLFLAGS = -s
 
-# List of locations to target for download
+# List of bounding boxes to target for download
 LOCATIONS = $(shell $(JQ) keys[] $(BOUNDSFILE))
 
 # valid options: ids, body, skel, tags, meta
@@ -34,30 +41,41 @@ OSM_USE_CUSTOM_INDEXING = NO
 export OSM_CONFIG_FILE OSM_USE_CUSTOM_INDEXING
 OGRFLAGS = -lco ENCODING=UTF-8
 
-ENV = .env/bin
+# shorthands for executables
+
 JQ = jq --raw-output
 CONVERT = convert
-RESTYLE = $(ENV)/svgis style
-DRAW = $(ENV)/svgis draw
+SVGIS = $(ENV)/svgis
+RESTYLE = $(SVGIS) style
+DRAW = $(SVGIS) draw
 
-# png files to generate
+# list of png files to generate,
+# based on the keys of the bounding box
 PNGS = $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(LOCATIONS)))
 
-SCALE = 10
-
-DENSITY = 576
-
+# imagemagick flags for adding small border
+DENSITY = 144
 BORDER = 10
 REPAGEFLAGS = -trim +repage
 BORDERFLAGS = -bordercolor white -border $(BORDER)x$(BORDER)
 
+# svgis draw flags
+SCALE = 10
+# Better compatibility for Adobe Illustrator
 DRAWFLAGS = --no-viewbox
+# generate a local transverse-mercator projection
+PROJECTION = local
+# css strings work well, too. ?= is conditional assignment: only if not already set
+STYLEFILE ?= "polyline,path {fill: none;}"
 
-TASKS = qls osms shps geojsons svgs pngs epss
+# Slightly-too-clever declaration of folders and shorthand tasks
+FILETYPES = ql osm svg shp geojson eps png
+DIRS = $(addprefix $(PREFIX)/,$(FILETYPES))
+TASKS = $(addsuffix s,$(FILETYPES))
 
-.PHONY: all install clean $(TASKS)
+# These don't create literal files
+.PHONY: info install clean $(TASKS)
 
-all: info
 info:
 	@echo config file: $(OSM_CONFIG_FILE)
 	@echo query template: $(QUERYFILE)
@@ -65,43 +83,63 @@ info:
 	@echo bounds count: $(words $(LOCATIONS))
 	@echo available commands: $(TASKS)
 
+# Shorthand tasks
+# pngs is easy, because we have a list of files
 pngs: $(PNGS)
 
+# Other rules require a second expansion to state simply
+# Without ".SECONDEXPANSION" this would yield a file ending in .%
 .SECONDEXPANSION:
-qls osms epss shps geojsons svgs: %s: $(addsuffix .$$*,$(addprefix $(PREFIX)/%/,$(LOCATIONS)))
+qls osms epss shps geojsons svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
 
+# file creation tasks in reverse-chronological order
+#
+
+# Generate a png from a svg.
+# the order-only prerequisite ("| PREFIX/png") doesn't check the folder timestamp
 $(PREFIX)/png/%.png: $(PREFIX)/svg/%.svg | $(PREFIX)/png
 	$(CONVERT) $< -density $(DENSITY) $(REPAGEFLAGS) $(BORDERFLAGS) $@
 
+# Generate an EPS from a SVG
 $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
 	$(CONVERT) $< $(REPAGEFLAGS) $@
 
-# could also be geojson
+# Default geo format, could be geojson
 GEO = shp
 FMT.geojson = GeoJSON
 FMT.shp = "ESRI Shapefile"
 
+# Draw the svg with SVGIS, using whichever GEO format is set
 $(PREFIX)/svg/%.svg: $(PREFIX)/$(GEO)/%.$(GEO) $(STYLEFILE) | $(PREFIX)/svg
-	$(DRAW) --project local --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $< -o $@
+	$(DRAW) --project $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $< -o $@
 
+# General task for creating either a shp or a geojson.
+# The nested variable is sort of like an array, 
+# lets us check the appropriate format name, which doesn't easily map from the file suffix. 
 $(PREFIX)/shp/%.shp $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/%.osm | $$(@D)
 	@rm -f $@
 	ogr2ogr -f $(FMT$(suffix $@)) $(OGRFLAGS) $@ $^ lines
 
+# OSM files are precious because they tend to be big,
+# we don't want to delete them and have to redownload
 .PRECIOUS: osm/%.osm
+# Post the query to the OSM api.
 $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 	curl $(API) $(CURLFLAGS) -o $@ --data @$<
 
+# Read bounding box from the bounds file, use sed to do some quick templating on the query file
 $(PREFIX)/ql/%.ql: | $(PREFIX)/ql
 	read BBOX <<<$$($(JQ) '.$* | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(",")' $(BOUNDSFILE)); \
 	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g" $(QUERYFILE) > $@
 
-ql osm svg shp geojson png: ; mkdir -p $@
+# Create directories
+$(DIRS): ; mkdir -p $@
 
-# Clean and install
+# Clean and install tasks
+#
+clean: ; rm -rf $(DIRS)
 
-clean: ; rm -rf ql osm svg shp geojson eps png
-
+# requires Homebrew and pip out of the gate
 install: | $(ENV)/activate
 	which gdalinfo || brew install gdal
 	. $|; \
