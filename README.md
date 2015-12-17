@@ -35,6 +35,14 @@ Once those are installed, run `make install` to install SVGIS.
 
 To build maps, you'll need two files: a bounds file and a query file. The bounds tells the `Makefile` where to download, and the query tells it what to download.
 
+Once the bounds and query are ready, maps are drawn with the following steps:
+````
+.ql  -> .osm (curl downloads from OSM)
+.osm -> .shp (ogr2ogr converts)
+.shp -> .svg (svgis draws)
+.svg -> .png/.eps (ImageMagick converts)
+````
+
 #### Bounds
 
 The Makefile needs bounds to determine where to download, and expects a simple format that contains maximum and minimum coordinates:
