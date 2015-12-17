@@ -2,6 +2,8 @@
 (
     way[highway=cycleway]({{bbox}});
 );
-out body;
->;
+(
+    ._;
+    >;
+);
 out {{verbosity}} qt;

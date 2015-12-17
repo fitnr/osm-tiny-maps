@@ -32,8 +32,9 @@ CURLFLAGS = -s
 # List of bounding boxes to target for download
 LOCATIONS = $(shell $(JQ) keys[] $(BOUNDSFILE))
 
-# valid options: ids, body, skel, tags, meta
-VERBOSITY ?= skel
+# OSM verbosity
+# valid options: skel, body, meta
+VERBOSITY ?= body
 
 # default configuration file for ogr2ogr
 OSM_CONFIG_FILE ?= osm.ini
