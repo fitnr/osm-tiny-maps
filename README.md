@@ -9,24 +9,27 @@ This workflow is straightforward and serves my needs. You might find it useful i
 
 #### OS X
 
-Assumes you have [Make](https://www.gnu.org/software/make/), [Homebrew](http://brew.sh), [pip](http://pip.readthedocs.org/en/stable/installing/) and [virtualenv](https://github.com/pypa/virtualenv) installed.
-
-Make can be installed (alongside other useful tools) with `xcode-select --install`.
+Assumes you have [Make](https://www.gnu.org/software/make/), [Homebrew](http://brew.sh) and [pip](http://pip.readthedocs.org/en/stable/installing/) installed.
 
 ````
 make install
 ````
 
+Make can be installed (along with other useful tools) with `xcode-select --install`.
+
 #### Other platforms
 
-Install [GDAL](http://www.gdal.org), [ImageMagick](http://www.imagemagick.org/script/binary-releases.php), [JQ](https://stedolan.github.io/jq/). On Linux, you will probably be able to do something like `yum/apt-get install imagemagick gdal`.
+Install:
+* [GDAL](http://www.gdal.org)
+* [ImageMagick](http://www.imagemagick.org/script/binary-releases.php)
+* [JQ](https://stedolan.github.io/jq/)
+* [pip](http://pip.readthedocs.org/en/stable/installing/)
 
-Assuming [pip](http://pip.readthedocs.org/en/stable/installing/) and [virtualenv](https://github.com/pypa/virtualenv) are installed:
-````
-make .env/activate
-. .env/activate
-pip install -r requirements.txt
-````
+On Linux, [Make](https://www.gnu.org/software/make/) is probably already available on your system, and you will probably be able to do something like `yum/apt-get install imagemagick gdal jq`. You might have to visit the JQ site to install it.
+
+If you're on Windows, look into [Cygwin](http://cygwin.com) 
+
+Once those are installed, run `make install` to install SVGIS.
 
 ### Building
 

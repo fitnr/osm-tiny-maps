@@ -18,10 +18,6 @@
 # setting this will put all files in the named folder
 PREFIX = .
 
-# SVGIS runs from a virtualenv.
-# This isn't strictly necessary, but it's useful for people with complicated lives
-ENV = .env/bin
-
 # INI files are valid Make variable declarations
 include config.ini 
 
@@ -46,7 +42,7 @@ OGRFLAGS = -lco ENCODING=UTF-8
 
 JQ = jq --raw-output
 CONVERT = convert
-SVGIS = $(ENV)/svgis
+SVGIS = svgis
 RESTYLE = $(SVGIS) style
 DRAW = $(SVGIS) draw
 
@@ -141,12 +137,9 @@ $(DIRS): ; mkdir -p $@
 clean: ; rm -rf $(DIRS)
 
 # requires Homebrew and pip out of the gate
-install: | $(ENV)/activate
+install:
 	which gdalinfo || brew install gdal
-	. $|; \
-		pip list | grep svgis || pip install "svgis>=0.2.3,<1"
+	pip list | grep svgis || pip install -U "svgis>=0.2.3,<1"
 	which $(CONVERT) || brew install Caskroom/cask/xquartz imagemagick
 	which jq || brew install jq
 
-$(ENV)/activate:
-	virtualenv $(shell dirname $(ENV))
