@@ -43,8 +43,6 @@ OGRFLAGS = -lco ENCODING=UTF-8
 JQ = jq --raw-output
 CONVERT = convert
 SVGIS = svgis
-RESTYLE = $(SVGIS) style
-DRAW = $(SVGIS) draw
 
 # list of png files to generate,
 # based on the keys of the bounding box
@@ -108,7 +106,7 @@ FMT.shp = "ESRI Shapefile"
 
 # Draw the svg with SVGIS, using whichever GEO format is set
 $(PREFIX)/svg/%.svg: $(PREFIX)/$(GEO)/%.$(GEO) $(STYLEFILE) | $(PREFIX)/svg
-	$(DRAW) --project $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $< -o $@
+	$(SVGIS) draw --crs $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $< -o $@
 
 # General task for creating either a shp or a geojson.
 # The nested variable is sort of like an array, 
@@ -139,7 +137,7 @@ clean: ; rm -rf $(DIRS)
 # requires Homebrew and pip out of the gate
 install:
 	which gdalinfo || brew install gdal
-	pip list | grep svgis || pip install -U "svgis>=0.2.3,<1"
+	pip list | grep svgis || pip install -U "svgis>=0.3.4,<1"
 	which $(CONVERT) || brew install Caskroom/cask/xquartz imagemagick
 	which jq || brew install jq
 
