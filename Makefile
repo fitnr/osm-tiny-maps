@@ -125,7 +125,9 @@ $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 # Read bounding box from the bounds file, use sed to do some quick templating on the query file
 $(PREFIX)/ql/%.ql: bounds.txt | $(PREFIX)/ql
 	read BBOX <<<$$(fgrep '$*' $< | cut -d '|' -f 2); \
-	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g" $(QUERYFILE) > $@
+	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g;s,//.*,," $(QUERYFILE) | \
+	tr '\n' ' ' | \
+	sed -e 's,/\*.*\*/,,g' > $@
 
 bounds.txt: $(BOUNDSFILE)
 	$(JQ) 'to_entries[] | [.key, (.value | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(","))] | join("|")' $< > $@
