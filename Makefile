@@ -69,7 +69,7 @@ DIRS = $(addprefix $(PREFIX)/,$(FILETYPES))
 TASKS = $(addsuffix s,$(FILETYPES))
 
 # These don't create literal files
-.PHONY: info install clean $(TASKS)
+.PHONY: info install ready clean $(TASKS)
 
 info:
 	@echo config file: $(OSM_CONFIG_FILE)
@@ -141,3 +141,8 @@ install:
 	which $(CONVERT) || brew install Caskroom/cask/xquartz imagemagick
 	which jq || brew install jq
 
+ready:
+	-@ogr2ogr --version >/dev/null && echo GDAL ok || echo install GDAL
+	-@which $(SVGIS) >/dev/null && echo $(SVGIS) ok || echo install $(SVGIS)
+	-@$(CONVERT) --version >/dev/null && echo ImageMagick ok || echo install ImageMagick
+	-@jq --version >/dev/null && echo jq ok || echo install jq
