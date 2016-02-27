@@ -124,7 +124,7 @@ $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 
 # Read bounding box from the bounds file, use sed to do some quick templating on the query file
 $(PREFIX)/ql/%.ql: | $(PREFIX)/ql
-	read BBOX <<<$$($(JQ) '.$* | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(",")' $(BOUNDSFILE)); \
+	read BBOX <<<$$($(JQ) '."$*" | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(",")' $(BOUNDSFILE)); \
 	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g" $(QUERYFILE) > $@
 
 # Create directories
