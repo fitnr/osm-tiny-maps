@@ -123,9 +123,12 @@ $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 	curl $(API) $(CURLFLAGS) -o $@ --data @$<
 
 # Read bounding box from the bounds file, use sed to do some quick templating on the query file
-$(PREFIX)/ql/%.ql: | $(PREFIX)/ql
-	read BBOX <<<$$($(JQ) '."$*" | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(",")' $(BOUNDSFILE)); \
+$(PREFIX)/ql/%.ql: bounds.txt | $(PREFIX)/ql
+	read BBOX <<<$$(fgrep '$*' $< | cut -d '|' -f 2); \
 	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g" $(QUERYFILE) > $@
+
+bounds.txt: $(BOUNDSFILE)
+	$(JQ) 'to_entries[] | [.key, (.value | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(","))] | join("|")' $< > $@
 
 # Create directories
 $(DIRS): ; mkdir -p $@

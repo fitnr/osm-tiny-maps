@@ -45,18 +45,23 @@ Once the bounds and query are ready, maps are drawn with the following steps:
 
 #### Bounds
 
-The Makefile needs bounds to determine where to download, and expects a simple format that contains maximum and minimum coordinates:
+The Makefile needs bounds to determine where to download. It reads a simple JSON file that contains objects with a key and bounding box coordinates:
 
 ````
-minx: (western latitude)
-miny: (southern longitude)
-maxx: (eastern latitude)
-maxy: (northern longitude)
+{
+	"name":
+		"minx": (western latitude),
+		"miny": (southern longitude),
+		"maxx": (eastern latitude),
+		"maxy": (northern longitude)
+	}
+}
 ````
-
 Coordinates should be in WGS84.
 
 The `example/` directory has an example file with boundaries around Boston and Oxford.
+
+The "name" must not contain the pipe (`|`) character. It will be used to name files, so avoid colons and slashes, too (`:\/`).
 
 #### Queries
 
