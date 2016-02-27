@@ -57,7 +57,7 @@ BORDERFLAGS = -bordercolor white -border $(BORDER)x$(BORDER)
 # svgis draw flags
 SCALE = 10
 # Better compatibility for Adobe Illustrator
-DRAWFLAGS = --no-viewbox
+DRAWFLAGS = --no-viewbox --inline
 # generate a local transverse-mercator projection
 PROJECTION = local
 # css strings work well, too. ?= is conditional assignment: only if not already set
