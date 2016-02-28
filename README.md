@@ -25,7 +25,7 @@ Install:
 * [JQ](https://stedolan.github.io/jq/)
 * [pip](http://pip.readthedocs.org/en/stable/installing/)
 
-On Linux, [Make](https://www.gnu.org/software/make/) is probably already available on your system, and you will probably be able to do something like `yum/apt-get install imagemagick gdal jq`. You might have to visit the JQ site to install it.
+On Linux, [Make](https://www.gnu.org/software/make/) is probably already available on your system, and you will probably be able to do something like `yum/apt-get install imagemagick libgdal1-dev gdal-bin jq`. You might have to visit the JQ site to install it.
 
 If you're on Windows, look into [Cygwin](http://cygwin.com) 
 

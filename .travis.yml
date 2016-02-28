@@ -5,9 +5,13 @@ os:
 git:
   depth: 2
 
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew outdated gdal || brew upgrade gdal; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install jq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y libgdal1-dev gdal-bin jq; fi
+
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];  then brew upgrade && brew install gdal jq; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y gdal jq; fi
   - sudo pip install -U "svgis>=0.3.7,<1"
 
 before_script:
