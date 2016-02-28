@@ -28,6 +28,17 @@ CURLFLAGS = -s
 # List of bounding boxes to target for download
 LOCATIONS = $(shell $(JQ) keys[] $(BOUNDSFILE))
 
+# To remove the JQ dependency, delete the above line and uncomment
+# the below line beginning 'LOCATIONS'.
+# Then, create a file called bounds.csv in this directory.
+# It should have no header, and a location name and
+# bounding coordinate on each line, in this format:
+# <location>,<minx>,<miny>,<maxx>,<maxy>
+# e.g:
+# oxford,51.6844,-1.399,51.8227,-1.0811
+
+# LOCATIONS = $(shell cut -f1 -d, bounds.csv)
+
 # OSM verbosity
 # valid options: skel, body, meta
 VERBOSITY ?= body
@@ -121,14 +132,14 @@ $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 	curl $(API) $(CURLFLAGS) -o $@ --data @$<
 
 # Read bounding box from the bounds file, use sed to do some quick templating on the query file
-$(PREFIX)/ql/%.ql: bounds.txt | $(PREFIX)/ql
-	read BBOX <<<$$(fgrep '$*' $< | cut -d '|' -f 2); \
+$(PREFIX)/ql/%.ql: bounds.csv | $(PREFIX)/ql
+	read BBOX <<<$$(fgrep '$*' $< | cut -d, -f2-); \
 	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g;s,//.*,," $(QUERYFILE) | \
 	tr '\n' ' ' | \
 	sed -e 's,/\*.*\*/,,g' > $@
 
-bounds.txt: $(BOUNDSFILE)
-	$(JQ) 'to_entries[] | [.key, (.value | [.miny, .minx, .maxy, .maxx] | map(tostring) | join(","))] | join("|")' $< > $@
+bounds.csv: $(BOUNDSFILE)
+	$(JQ) 'to_entries[] | [.key, .value.miny, .value.minx, .value.maxy, .value.maxx] | map(tostring) | join(",")' $< > $@
 
 # Create directories
 $(DIRS): ; mkdir -p $@

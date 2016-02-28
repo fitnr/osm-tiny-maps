@@ -31,6 +31,8 @@ If you're on Windows, look into [Cygwin](http://cygwin.com)
 
 Once those are installed, run `make install` to install SVGIS.
 
+(The jq dependency is technically optional, see the Makefile for instructions on bypassing it.)
+
 ### Building
 
 To build maps, you'll need two files: a bounds file and a query file. The bounds tells the `Makefile` where to download, and the query tells it what to download.
@@ -61,7 +63,7 @@ Coordinates should be in WGS84.
 
 The `example/` directory has an example file with boundaries around Boston and Oxford.
 
-The "name" must not contain the pipe (`|`) character. It will be used to name files, so avoid colons and slashes, too (`:\/`).
+Location names must not contain commas, quotes or spaces (`,'" `). It will be used to name files, so avoid colons and slashes, too (`:\/`).
 
 #### Queries
 
