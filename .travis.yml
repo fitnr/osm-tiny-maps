@@ -1,0 +1,18 @@
+os:
+  - linux
+  - osx
+
+git:
+  depth: 2
+
+install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];  then brew upgrade && brew install gdal jq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y gdal jq; fi
+  - sudo pip install -U "svgis>=0.3.7,<1"
+
+before_script:
+  - make ready
+  - make info
+
+script:
+  - make svgs

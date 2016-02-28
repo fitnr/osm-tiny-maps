@@ -140,7 +140,7 @@ clean: ; rm -rf $(DIRS)
 # requires Homebrew and pip out of the gate
 install:
 	which gdalinfo || brew install gdal
-	pip list | grep svgis || pip install -U "svgis>=0.3.4,<1"
+	pip list | grep svgis || pip install -U "svgis>=0.3.7,<1"
 	which $(CONVERT) || brew install Caskroom/cask/xquartz imagemagick
 	which jq || brew install jq
 
