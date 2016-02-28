@@ -9,7 +9,7 @@ This workflow is straightforward and serves my needs. You might find it useful i
 
 #### OS X
 
-Assumes you have [Make](https://www.gnu.org/software/make/), [Homebrew](http://brew.sh) and [pip](http://pip.readthedocs.org/en/stable/installing/) installed.
+Assuming you have [Make](https://www.gnu.org/software/make/), [Homebrew](http://brew.sh) and [pip](http://pip.readthedocs.org/en/stable/installing/) installed, run:
 
 ````
 make install
@@ -22,16 +22,13 @@ Make can be installed (along with other useful tools) with `xcode-select --insta
 Install:
 * [GDAL](http://www.gdal.org)
 * [ImageMagick](http://www.imagemagick.org/script/binary-releases.php)
-* [JQ](https://stedolan.github.io/jq/)
 * [pip](http://pip.readthedocs.org/en/stable/installing/)
 
-On Linux, [Make](https://www.gnu.org/software/make/) is probably already available on your system, and you will probably be able to do something like `yum/apt-get install imagemagick libgdal1-dev gdal-bin jq`. You might have to visit the JQ site to install it.
+On Linux, [Make](https://www.gnu.org/software/make/) is probably already available on your system, and you likely be able to do something like `yum/apt-get install imagemagick libgdal1-dev gdal-bin`.
 
-If you're on Windows, look into [Cygwin](http://cygwin.com) 
+If you're on Windows, look into [Cygwin](http://cygwin.com), to provide a bash shell, and [OSGeo4W](https://trac.osgeo.org/osgeo4w/) for providing GDAL.
 
-Once those are installed, run `make install` to install SVGIS.
-
-(The jq dependency is technically optional, see the Makefile for instructions on bypassing it.)
+Once those are installed, run `make install` to install SVGIS. Run `make ready` to check if all the prerequisites are available.
 
 ### Building
 
@@ -47,23 +44,18 @@ Once the bounds and query are ready, maps are drawn with the following steps:
 
 #### Bounds
 
-The Makefile needs bounds to determine where to download. It reads a simple JSON file that contains objects with a key and bounding box coordinates:
+The Makefile needs bounds to determine where to download. It reads a simple CSV file that contains place names and bounding box coordinates:
 
 ````
-{
-	"name":
-		"minx": (western latitude),
-		"miny": (southern longitude),
-		"maxx": (eastern latitude),
-		"maxy": (northern longitude)
-	}
-}
+placename,minx,miny,maxx,maxy
+placename,(western latitude),(southern longitude),(eastern latitude),(northern longitude)
 ````
-Coordinates should be in WGS84.
 
-The `example/` directory has an example file with boundaries around Boston and Oxford.
+This file shouldn't have a header row. Coordinates should be in WGS84.
 
-Location names must not contain commas, quotes or spaces (`,'" `). It will be used to name files, so avoid colons and slashes, too (`:\/`).
+The `example/` directory has an example file with boundaries around Boston, Oxford and Chicago's Loop.
+
+Place names must not contain spaces, commas or quotes (`,'" `). It will be used to name files, so avoid colons and slashes, too (`:\/`).
 
 #### Queries
 
@@ -88,14 +80,14 @@ Once the bounds and query file are ready, save them in the same directory as the
 
 ````ini
 QUERYFILE = my_query.ql
-BOUNDSFILE = my_bounds.json
+BOUNDSFILE = my_bounds.csv
 ````
 
 To make sure that everything looks right, run: `make info`. This should print something like:
 ````
 config file: example/osm.ini
 query template: example/query.ql
-bounds file: example/bounds.json
+bounds file: example/bounds.csv
 bounds count: 2
 available commands: qls, osms, svgs, geojsons, pngs
 ````
