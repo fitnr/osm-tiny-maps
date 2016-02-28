@@ -60,8 +60,6 @@ SCALE = 10
 DRAWFLAGS = --no-viewbox --inline
 # generate a local transverse-mercator projection
 PROJECTION = local
-# css strings work well, too. ?= is conditional assignment: only if not already set
-STYLEFILE ?= "polyline,path {fill: none;}"
 
 # Slightly-too-clever declaration of folders and shorthand tasks
 FILETYPES = ql osm svg shp geojson eps png
