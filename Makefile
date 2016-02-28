@@ -1,5 +1,5 @@
 # osm-tiny-maps, OpenStreetMap downloads and image-creation
-# Copyright (C) 2015, Neil Freeman
+# Copyright (C) 2016, Neil Freeman
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
