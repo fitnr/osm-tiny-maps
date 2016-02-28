@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+SHELL = bash
+
 # Useful for downloading another iteration of similar data
 # setting this will put all files in the named folder
 PREFIX = .
