@@ -34,5 +34,6 @@ before_script:
   - make ready
   - make info
 
+# Let's assume that ImageMagick works fine, so only go as far as building the SVGs
 script:
   - make svgs

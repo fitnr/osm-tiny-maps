@@ -100,7 +100,6 @@ pngs: $(PNGS)
 qls osms epss geojsons svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
 
 # file creation tasks in reverse-chronological order
-#
 
 # Generate a png from a svg.
 # the order-only prerequisite ("| PREFIX/png") doesn't check the folder timestamp
@@ -131,6 +130,7 @@ $(PREFIX)/geojson/%-multipolygons.geojson: $(PREFIX)/osm/%.osm | $(PREFIX)/geojs
 # OSM files are precious because they tend to be big,
 # we don't want to delete them and have to redownload
 .PRECIOUS: osm/%.osm
+
 # Post the query to the OSM api.
 $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 	curl $(API) $(CURLFLAGS) -o $@ --data @$<
@@ -149,7 +149,6 @@ bounds.csv: $(BOUNDSFILE)
 $(DIRS): ; mkdir -p $@
 
 # Clean and install tasks
-#
 clean: ; rm -rf $(DIRS)
 
 # requires Homebrew and pip out of the gate
