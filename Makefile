@@ -94,10 +94,13 @@ info:
 # pngs is easy, because we have a list of files
 pngs: $(PNGS)
 
+# Geojson rule requires replacement for each GEOMETRY
+geojsons: $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$L-$G.geojson))
+
 # Other rules require a second expansion to state simply
 # Without ".SECONDEXPANSION" this would yield a file ending in .%
 .SECONDEXPANSION:
-qls osms epss geojsons svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
+qls osms epss svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
 
 # file creation tasks in reverse-chronological order
 
@@ -111,7 +114,7 @@ $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
 	$(CONVERT) $< $(REPAGEFLAGS) $@
 
 # Draw the svg with SVGIS, using whichever GEO format is set
-$(PREFIX)/svg/%.svg:  $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%-$x.geojson) $(STYLEFILE) | $(PREFIX)/svg
+$(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%-$x.geojson) $(STYLEFILE) | $(PREFIX)/svg
 	$(SVGIS) draw --crs $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $(filter-out %.css,$^) -o $@
 
 # Create geodata from OSM data.
