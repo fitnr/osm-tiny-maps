@@ -47,10 +47,9 @@ VERBOSITY ?= body
 OSM_CONFIG_FILE ?= osm.ini
 OSM_USE_CUSTOM_INDEXING = NO
 export OSM_CONFIG_FILE OSM_USE_CUSTOM_INDEXING
-OGRFLAGS = -lco ENCODING=UTF-8
+OGRFLAGS = -f GeoJSON -lco ENCODING=UTF-8
 
 # shorthands for executables
-
 JQ = jq --raw-output
 CONVERT = convert
 SVGIS = svgis
@@ -73,9 +72,11 @@ DRAWFLAGS = --no-viewbox --inline
 PROJECTION = local
 
 # Slightly-too-clever declaration of folders and shorthand tasks
-FILETYPES = ql osm svg shp geojson eps png
+FILETYPES = ql osm svg geojson eps png
 DIRS = $(addprefix $(PREFIX)/,$(FILETYPES))
 TASKS = $(addsuffix s,$(FILETYPES))
+
+GEOMETRY = lines
 
 # These don't create literal files
 .PHONY: info install ready clean $(TASKS)
@@ -94,7 +95,7 @@ pngs: $(PNGS)
 # Other rules require a second expansion to state simply
 # Without ".SECONDEXPANSION" this would yield a file ending in .%
 .SECONDEXPANSION:
-qls osms epss shps geojsons svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
+qls osms epss geojsons svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
 
 # file creation tasks in reverse-chronological order
 #
@@ -108,21 +109,22 @@ $(PREFIX)/png/%.png: $(PREFIX)/svg/%.svg | $(PREFIX)/png
 $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
 	$(CONVERT) $< $(REPAGEFLAGS) $@
 
-# Default geo format, could be geojson
-GEO = shp
-FMT.geojson = GeoJSON
-FMT.shp = "ESRI Shapefile"
-
 # Draw the svg with SVGIS, using whichever GEO format is set
-$(PREFIX)/svg/%.svg: $(PREFIX)/$(GEO)/%.$(GEO) $(STYLEFILE) | $(PREFIX)/svg
-	$(SVGIS) draw --crs $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $< -o $@
+$(PREFIX)/svg/%.svg:  $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%-$x.geojson) $(STYLEFILE) | $(PREFIX)/svg
+	$(SVGIS) draw --crs $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $(filter-out %.css,$^) -o $@
 
-# General task for creating either a shp or a geojson.
-# The nested variable is sort of like an array, 
-# lets us check the appropriate format name, which doesn't easily map from the file suffix. 
-$(PREFIX)/shp/%.shp $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/%.osm | $$(@D)
+# Create geodata from OSM data.
+$(PREFIX)/geojson/%-points.geojson: $(PREFIX)/osm/%.osm | $(PREFIX)/geojson
 	@rm -f $@
-	ogr2ogr -f $(FMT$(suffix $@)) $(OGRFLAGS) $@ $^ lines
+	ogr2ogr $@ $^ points $(OGRFLAGS)
+
+$(PREFIX)/geojson/%-lines.geojson: $(PREFIX)/osm/%.osm | $(PREFIX)/geojson
+	@rm -f $@
+	ogr2ogr $@ $^ lines $(OGRFLAGS)
+
+$(PREFIX)/geojson/%-multipolygons.geojson: $(PREFIX)/osm/%.osm | $(PREFIX)/geojson
+	@rm -f $@
+	ogr2ogr $@ $^ multipolygons $(OGRFLAGS)
 
 # OSM files are precious because they tend to be big,
 # we don't want to delete them and have to redownload
