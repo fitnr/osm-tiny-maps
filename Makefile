@@ -106,6 +106,10 @@ $(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%$x.geojson) $(ST
 	svgis draw -o $@ $(drawopts) $(filter-out %.css,$^)
 
 # Create geodata from OSM data
+# This task uses a complicated expansion in order to address all the GEOMETRYs without repetition.
+# The actual ogr2ogr command will look like:
+# ogr2ogr placelines.geojson place.osm lines -f GeoJSON
+# where 'lines' could be any of the GEOMETRYs
 osm := $$(subst multipolygons,,$$(subst lines,,$$(subst points,,$$*)))
 $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$(osm).osm | $(PREFIX)/geojson
 	@rm -f $@
