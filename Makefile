@@ -60,11 +60,10 @@ drawopts = --crs $(PROJECTION) \
 
 # Valid GEOMETRY types: points lines multipolygons
 GEOMETRY = lines multipolygons
-GEOJSONS = $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$G/$L.geojson))
 
 # Slightly-too-clever declaration of folders and shorthand tasks
 FILETYPES = ql osm svg geojson eps png
-DIRS = $(addprefix $(PREFIX)/,$(FILETYPES) $(addprefix geojson/,$(GEOMETRY)))
+DIRS = $(addprefix $(PREFIX)/,$(FILETYPES))
 TASKS = $(addsuffix s,$(FILETYPES))
 
 # These don't create literal files
@@ -84,7 +83,7 @@ info:
 pngs: $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(LOCATIONS)))
 
 # Geojson rule requires replacement for each GEOMETRY
-geojsons: $(GEOJSONS)
+geojsons: $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$L$G.geojson))
 
 # Other rules require a second expansion to state simply
 # Without ".SECONDEXPANSION" this would yield a file ending in .%
@@ -103,13 +102,14 @@ $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
 	convert $< $(REPAGEFLAGS) $@
 
 # Draw the svg with SVGIS using one or more GEOMETRYs
-$(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/$x/%.geojson) $(STYLEFILE) | $(PREFIX)/svg
+$(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%$x.geojson) $(STYLEFILE) | $(PREFIX)/svg
 	svgis draw -o $@ $(drawopts) $(filter-out %.css,$^)
 
 # Create geodata from OSM data
-$(GEOJSONS): $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$$(*F).osm | $$(@D)
+osm := $$(subst multipolygons,,$$(subst lines,,$$(subst points,,$$*)))
+$(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$(osm).osm | $(PREFIX)/geojson
 	@rm -f $@
-	ogr2ogr $@ $^ $(*D) $(OGRFLAGS)
+	ogr2ogr $@ $^ $(subst $(basename $(<F)),,$*) $(OGRFLAGS)
 
 # OSM files are precious because they tend to be big, we don't want make to delete them
 .PRECIOUS: osm/%.osm

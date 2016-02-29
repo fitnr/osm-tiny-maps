@@ -55,7 +55,7 @@ This file shouldn't have a header row. Coordinates should be in WGS84.
 
 The `example/` directory has an example file with boundaries around Boston, Oxford and Chicago's Loop.
 
-Place names must not contain spaces, commas or quotes (`,'" `). It will be used to name files, so avoid colons and slashes, too (`:\/`).
+Place names must not contain commas, spaces, colons, slashes or quotes (`, :\/'"`), nor the words `lines`, `points` or `multipolygons`.
 
 #### Queries
 
