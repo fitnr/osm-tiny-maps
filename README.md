@@ -59,7 +59,7 @@ Place names must not contain spaces, commas or quotes (`,'" `). It will be used 
 
 #### Queries
 
-See the [Overpass Turbo](http://overpass-turbo.eu) and the [OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide) for help in creating a query.
+OSM Overpass queries use a unique and fairly complicated syntax, See [Overpass Turbo](http://overpass-turbo.eu) and the [Overpass API language guide](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide) for help in writing a query.
 
 The example directory has a simple query that downloads pedestrian paths:
 ````
@@ -72,7 +72,7 @@ out body;
 out {{verbosity}} qt;
 ````
 
-Note that the bounding box has been replaced by the `{{bbox}}` placeholder, likewise with the [verbosity](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide#Degree_of_verbosity). By default, `body` will be used. If you want to download OSM data that can be edited (e.g. with [JOSM](https://josm.openstreetmap.de)), run commands with `VERBOSITY=meta`. The valid verbosity levels are: `skel`, `body` and `meta` (in increasing verbosity).
+Note the `{{bbox}}` and [`{{verbosity}}`](https://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide#Degree_of_verbosity) placeholders. If you want to download OSM data that can be edited (e.g. with [JOSM](https://josm.openstreetmap.de)), run commands with `VERBOSITY=meta`. The valid verbosity levels are: `skel`, `body` and `meta` (in increasing verbosity), the default is body.
 
 #### Fun part
 

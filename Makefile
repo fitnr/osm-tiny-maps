@@ -39,28 +39,19 @@ OSM_USE_CUSTOM_INDEXING = NO
 export OSM_CONFIG_FILE OSM_USE_CUSTOM_INDEXING
 OGRFLAGS = -f GeoJSON -lco ENCODING=UTF-8
 
-# shorthands for executables
-JQ = jq --raw-output
-CONVERT = convert
-SVGIS = svgis
-
-# list of png files to generate,
-# based on the keys of the bounding box
-PNGS = $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(LOCATIONS)))
-
 # imagemagick flags for adding small border
 DENSITY = 144
 BORDER = 10
 REPAGEFLAGS = -trim +repage
 BORDERFLAGS = -bordercolor white -border $(BORDER)x$(BORDER)
 
-# svgis draw flags
+# no-viewbox gives better compatibility for Adobe Illustrator
+DRAWFLAGS = --no-viewbox --inline --padding 10
 SCALE = 10
-# Better compatibility for Adobe Illustrator
-DRAWFLAGS = --no-viewbox --inline
 # generate a local transverse-mercator projection
 PROJECTION = local
 
+# Valid GEOMETRY types: points lines multipolygons
 GEOMETRY = lines
 GEOJSONS = $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$G/$L.geojson))
 
@@ -81,8 +72,9 @@ info:
 	@echo available commands: $(TASKS)
 
 # Shorthand tasks
-# pngs is easy, because we have a list of files
-pngs: $(PNGS)
+
+# list of png files to generate, based on the keys of the bounding box
+pngs: $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(LOCATIONS)))
 
 # Geojson rule requires replacement for each GEOMETRY
 geojsons: $(GEOJSONS)
@@ -97,23 +89,22 @@ qls osms epss svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
 # Generate a png from a svg.
 # the order-only prerequisite ("| PREFIX/png") doesn't check the folder timestamp
 $(PREFIX)/png/%.png: $(PREFIX)/svg/%.svg | $(PREFIX)/png
-	$(CONVERT) $< -density $(DENSITY) $(REPAGEFLAGS) $(BORDERFLAGS) $@
+	convert $< -density $(DENSITY) $(REPAGEFLAGS) $(BORDERFLAGS) $@
 
 # Generate an EPS from a SVG
 $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
-	$(CONVERT) $< $(REPAGEFLAGS) $@
+	convert $< $(REPAGEFLAGS) $@
 
 # Draw the svg with SVGIS using one or more GEOMETRYs
 $(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/$x/%.geojson) $(STYLEFILE) | $(PREFIX)/svg
-	$(SVGIS) draw --crs $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $(filter-out %.css,$^) -o $@
+	svgis draw --crs $(PROJECTION) --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $(filter-out %.css,$^) -o $@
 
 # Create geodata from OSM data
 $(GEOJSONS): $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$$(*F).osm | $$(@D)
 	@rm -f $@
 	ogr2ogr $@ $^ $(*D) $(OGRFLAGS)
 
-# OSM files are precious because they tend to be big,
-# we don't want to delete them and have to redownload
+# OSM files are precious because they tend to be big, we don't want make to delete them
 .PRECIOUS: osm/%.osm
 
 # Post the query to the OSM api.
