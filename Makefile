@@ -61,12 +61,13 @@ DRAWFLAGS = --no-viewbox --inline
 # generate a local transverse-mercator projection
 PROJECTION = local
 
+GEOMETRY = lines
+GEOJSONS = $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$G/$L.geojson))
+
 # Slightly-too-clever declaration of folders and shorthand tasks
 FILETYPES = ql osm svg geojson eps png
-DIRS = $(addprefix $(PREFIX)/,$(FILETYPES))
+DIRS = $(addprefix $(PREFIX)/,$(FILETYPES) $(addprefix geojson/,$(GEOMETRY)))
 TASKS = $(addsuffix s,$(FILETYPES))
-
-GEOMETRY = lines
 
 # These don't create literal files
 .PHONY: info install ready clean $(TASKS)
@@ -84,7 +85,7 @@ info:
 pngs: $(PNGS)
 
 # Geojson rule requires replacement for each GEOMETRY
-geojsons: $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$L-$G.geojson))
+geojsons: $(GEOJSONS)
 
 # Other rules require a second expansion to state simply
 # Without ".SECONDEXPANSION" this would yield a file ending in .%
@@ -102,22 +103,14 @@ $(PREFIX)/png/%.png: $(PREFIX)/svg/%.svg | $(PREFIX)/png
 $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
 	$(CONVERT) $< $(REPAGEFLAGS) $@
 
-# Draw the svg with SVGIS, using whichever GEO format is set
-$(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%-$x.geojson) $(STYLEFILE) | $(PREFIX)/svg
+# Draw the svg with SVGIS using one or more GEOMETRYs
+$(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/$x/%.geojson) $(STYLEFILE) | $(PREFIX)/svg
 	$(SVGIS) draw --crs $(PROJECTION) --padding 10 --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $(filter-out %.css,$^) -o $@
 
-# Create geodata from OSM data.
-$(PREFIX)/geojson/%-points.geojson: $(PREFIX)/osm/%.osm | $(PREFIX)/geojson
+# Create geodata from OSM data
+$(GEOJSONS): $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$$(*F).osm | $$(@D)
 	@rm -f $@
-	ogr2ogr $@ $^ points $(OGRFLAGS)
-
-$(PREFIX)/geojson/%-lines.geojson: $(PREFIX)/osm/%.osm | $(PREFIX)/geojson
-	@rm -f $@
-	ogr2ogr $@ $^ lines $(OGRFLAGS)
-
-$(PREFIX)/geojson/%-multipolygons.geojson: $(PREFIX)/osm/%.osm | $(PREFIX)/geojson
-	@rm -f $@
-	ogr2ogr $@ $^ multipolygons $(OGRFLAGS)
+	ogr2ogr $@ $^ $(*D) $(OGRFLAGS)
 
 # OSM files are precious because they tend to be big,
 # we don't want to delete them and have to redownload
