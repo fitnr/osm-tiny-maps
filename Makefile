@@ -70,11 +70,11 @@ TASKS = $(addsuffix s,$(FILETYPES))
 .PHONY: info install ready clean $(TASKS)
 
 info:
-	@echo config file: $(OSM_CONFIG_FILE)
 	@echo query template: $(QUERYFILE)
 	@echo bounds file: $(BOUNDSFILE)
 	@echo bounds count: $(words $(LOCATIONS))
 	@echo css file: $(STYLEFILE)
+	@echo osm conversion settings: $(OSM_CONFIG_FILE)
 	@echo available commands: $(TASKS)
 
 # Shorthand tasks
@@ -139,5 +139,5 @@ install:
 
 ready:
 	-@ogr2ogr --version >/dev/null && echo GDAL ok || echo install GDAL
-	-@which $(SVGIS) >/dev/null && echo $(SVGIS) ok || echo install $(SVGIS)
-	-@$(CONVERT) --version >/dev/null && echo ImageMagick ok || echo install ImageMagick
+	-@which svgis >/dev/null && echo svgis ok || echo install svgis
+	-@convert --version >/dev/null && echo ImageMagick ok || echo install ImageMagick
