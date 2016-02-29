@@ -130,8 +130,8 @@ $(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
 # Read bounding box from the bounds file, use sed to do some quick templating on the query file
 $(PREFIX)/ql/%.ql: $(BOUNDSFILE) | $(PREFIX)/ql
 	read BBOX <<<$$(fgrep '$*' $< | cut -d, -f2-); \
-	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g;s,//.*,," $(QUERYFILE) | \
-	tr '\n' ' ' | \
+	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g;s,//.*,,;s/ *//" $(QUERYFILE) | \
+	tr -d '\n' | \
 	sed -e 's,/\*.*\*/,,g' > $@
 
 # Create directories
