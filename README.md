@@ -111,7 +111,7 @@ Here are a few built-in ways to change the results:
 
 #### Geometries
 
-OpenStreetMap geometries come in three flavors: `points`, `lines`, and `multipolygons` (This is a gross over-simplification). By default, osm-tiny-maps processes only lines. To include points or multipolygons, use the `GEOMETRY` variable:
+OpenStreetMap geometries come in three flavors: `points`, `lines`, and `multipolygons` (This is a [gross over-simplification](http://wiki.openstreetmap.org/wiki/Elements)). By default, osm-tiny-maps processes lines and multipolygons. To change this, use the `GEOMETRY` variable:
 
 ```bash
 # process only multipolygons
@@ -121,6 +121,8 @@ make pngs GEOMETRY='points lines multipolygons'
 ````
 
 #### Different sizes
+
+Map scale in SVGIS is the ratio between svg units and projection units. Most map projections use meters or feet, and svg clients usually represent an svg units as a pixel or a fraction of an inch.
 
 The default scale is 10, which is appropriate for a creating a small map of a neighborhood. To get larger output PNGs, use a smaller scale, and vis versa:
 ````
@@ -132,24 +134,24 @@ make svgs SCALE=1000 # really small
 
 `SVGIS` can style output svgs features based on their properties, but `ogr2ogr` needs to told explicitly which keys to read from the OSM file. This is controlled by the config file `osm.ini`. For instance, to include the `highway` key, often seen on roads and ways, add 'highway' to the `attributes` row in in the `[lines]` section.
 
-The default `style.css` creates simple black line drawings. Edit it to create more elaborately styled SVGs. Use the STYLE option to use another file: `make svgs STYLE=other.css`.
-
-Because of the limitations of how ImageMagick parses SVGs, the ID field isn't available. It is possible to use OSM attribtues to style features. For example:
+It is possible to use OSM attributes to style features. To do so, you must provide an argument for the svgis draw `--class-fields` option:
 ````
-make svgs DRAWFLAGS="--no-viewbox --inline --class-fields=bicycle"
+make svgs CLASSFIELDS="surface,leisure"
 ````
 
-This will produce an SVG with classes like `bicycle_no` and `bicycle_permissive`. The included `style.css` includes a rule for drawing this kind of line in red. Read the [SVGIS](https://github.com/fitnr/svgis) documentation for more.
+With this option set, the styles in `example/style.css` will create simple drawings of asphalt bike paths in blue and parks in green. Edit the STYLEFILE option in `config.ini` to use your own file, and use different class-fields to create more elaborately styled maps. Read the [SVGIS](https://github.com/fitnr/svgis) documentation for more. 
 
 #### Projections
 
 By default, maps are drawn in comparable Transverse Mercator projections. To use a custom projection, use pass additional options to `svgis draw`:
 ````bash
-# New York state plane
-make svgs PROJECT=EPSG:4456
-# local UTM projection
+# Use the local UTM projection
 make svgs PROJECT=utm
+# Use New York state plane
+make svgs PROJECT=EPSG:4456
 ````
+
+The `EPSG:4446` in the second example is a map projection ID. The websites [espg.io](http://espg.io) and [spatialreference.org](http://spatialreference.org/ref/epsg/) are a good references for finding the EPSG codes.
 
 ### License
 

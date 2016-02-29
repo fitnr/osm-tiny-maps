@@ -47,12 +47,19 @@ BORDERFLAGS = -bordercolor white -border $(BORDER)x$(BORDER)
 
 # no-viewbox gives better compatibility for Adobe Illustrator
 DRAWFLAGS = --no-viewbox --inline --padding 10
+CLASSFIELDS = ''
 SCALE = 10
 # generate a local transverse-mercator projection
 PROJECTION = local
+# For clarity:
+drawopts = --crs $(PROJECTION) \
+	--scale $(SCALE) \
+	--style $(STYLEFILE) \
+	--class-fields $(CLASSFIELDS) \
+	$(DRAWFLAGS)
 
 # Valid GEOMETRY types: points lines multipolygons
-GEOMETRY = lines
+GEOMETRY = lines multipolygons
 GEOJSONS = $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$G/$L.geojson))
 
 # Slightly-too-clever declaration of folders and shorthand tasks
@@ -97,7 +104,7 @@ $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
 
 # Draw the svg with SVGIS using one or more GEOMETRYs
 $(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/$x/%.geojson) $(STYLEFILE) | $(PREFIX)/svg
-	svgis draw --crs $(PROJECTION) --scale $(SCALE) --style $(STYLEFILE) $(DRAWFLAGS) $(filter-out %.css,$^) -o $@
+	svgis draw -o $@ $(drawopts) $(filter-out %.css,$^)
 
 # Create geodata from OSM data
 $(GEOJSONS): $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$$(*F).osm | $$(@D)

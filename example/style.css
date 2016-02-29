@@ -1,13 +1,18 @@
-polyline,
-path {
-    fill: none;
-    stroke: black;
-    stroke-linejoin: round;
-    stroke-width: 1px;
-}
+/*
+ Differentiate between paved and unknown surfaces.
+ Works when --class-fields surface is given
+*/
 .surface_None {
     stroke: gray;
 }
-.surface_asphalt {
+.surface_paved {
     stroke: blue;
+}
+
+/*
+ Draw parks in green when --class-fields park is given
+*/
+.leisure_park {
+	fill: green;
+	stroke: none;
 }
