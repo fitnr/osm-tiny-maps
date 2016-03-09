@@ -59,11 +59,11 @@ drawopts = --crs $(PROJECTION) \
 	$(DRAWFLAGS)
 
 # Valid GEOMETRY types: points lines multipolygons
-GEOMETRY = lines multipolygons
+GEOMETRY = multipolygons lines
 
 # Slightly-too-clever declaration of folders and shorthand tasks
 FILETYPES = ql osm svg geojson eps png
-DIRS = $(addprefix $(PREFIX)/,$(FILETYPES))
+DIRS = $(addprefix $(PREFIX)/,$(FILETYPES)) $(addprefix $(PREFIX)/geojson/,$(GEOMETRY))
 TASKS = $(addsuffix s,$(FILETYPES))
 
 # These don't create literal files
@@ -83,7 +83,7 @@ info:
 pngs: $(addsuffix .png,$(addprefix $(PREFIX)/png/,$(LOCATIONS)))
 
 # Geojson rule requires replacement for each GEOMETRY
-geojsons: $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$L$G.geojson))
+geojsons: $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$G/$L.geojson))
 
 # Other rules require a second expansion to state simply
 # Without ".SECONDEXPANSION" this would yield a file ending in .%
@@ -102,7 +102,7 @@ $(PREFIX)/eps/%.eps: $(PREFIX)/svg/%.svg | $(PREFIX)/eps
 	convert $< $(REPAGEFLAGS) $@
 
 # Draw the svg with SVGIS using one or more GEOMETRYs
-$(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%$x.geojson) $(STYLEFILE) | $(PREFIX)/svg
+$(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/$x/%.geojson) $(STYLEFILE) | $(PREFIX)/svg
 	svgis draw -o $@ $(drawopts) $(filter-out %.css,$^)
 
 # Create geodata from OSM data
@@ -110,10 +110,9 @@ $(PREFIX)/svg/%.svg: $(foreach x,$(GEOMETRY),$(PREFIX)/geojson/%$x.geojson) $(ST
 # The actual ogr2ogr command will look like:
 # ogr2ogr placelines.geojson place.osm lines -f GeoJSON
 # where 'lines' could be any of the GEOMETRYs
-osm := $$(subst multipolygons,,$$(subst lines,,$$(subst points,,$$*)))
-$(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$(osm).osm | $(PREFIX)/geojson
+$(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$$(*F).osm | $$(@D)
 	@rm -f $@
-	ogr2ogr $@ $^ $(subst $(basename $(<F)),,$*) $(OGRFLAGS)
+	ogr2ogr $@ $^ $(*D) $(OGRFLAGS)
 
 # OSM files are precious because they tend to be big, we don't want make to delete them
 .PRECIOUS: osm/%.osm
