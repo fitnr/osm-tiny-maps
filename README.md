@@ -111,14 +111,14 @@ With this option set, the styles in `example/style.css` will create simple maps 
 Once the bounds, query template and css files are ready, save them in the same directory as the `Makefile` and add them to `conf.ini`:
 
 ````ini
-QUERYFILE = my_query.ql
+QUERYFILE = my_query.overpassql
 BOUNDSFILE = my_bounds.csv
 STYLEFILE = my_styles.css
 ````
 
 To make sure that everything looks right, run: `make info`. This should print something like:
 ````
-query template: my_query.ql
+query template: my_query.overpassql
 bounds file: my_bounds.csv
 css file: my_styles.css
 osm conversion settings: osm.ini
@@ -138,16 +138,16 @@ The `Makefile` is intended to be edited and adapted. There are some built in way
 
 The tools used are:
 
-* bash builtins format the template query, converting each line of the `bounds.csv` file into a `.ql` query
-* `curl`, the standard builtin file downloader, uses the `.ql` to download OSM data from the Overpass API
+* bash builtins format the template query, converting each line of the `bounds.csv` file into a `.overpassql` query
+* `curl`, the standard builtin file downloader, uses the `.overpassql` file to download OSM data from the Overpass API
 * `ogr2ogr` converts the OSM data into GeoJSON, a standard geodata format
 * `svgis` draws the geojson files as SVGs
 * `convert`, part of ImageMagick, converts the SVGs into EPS or PNG files
 
 Stated another way:
 ````
-bounds.csv -> .ql (bash creates queries)
-.ql -> .osm (curl downloads from OSM)
+bounds.csv -> .overpassql (bash creates queries)
+.overpassql -> .osm (curl downloads from OSM)
 .osm -> .geojson (ogr2ogr converts)
 .geojson -> .svg (svgis draws)
 .svg -> .png/.eps (ImageMagick converts)

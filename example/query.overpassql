@@ -1,3 +1,4 @@
+// Single-line comment
 [out:xml][timeout:60];
 (
     way[highway=cycleway]({{bbox}});
@@ -7,4 +8,8 @@
     ._;
     >;
 );
+/*
+ Multi-line
+ comment
+*/
 out {{verbosity}} qt;

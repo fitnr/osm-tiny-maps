@@ -62,7 +62,7 @@ drawopts = --crs $(PROJECTION) \
 GEOMETRY = multipolygons lines
 
 # Slightly-too-clever declaration of folders and shorthand tasks
-FILETYPES = ql osm svg geojson eps png
+FILETYPES = overpassql osm svg geojson eps png
 DIRS = $(addprefix $(PREFIX)/,$(FILETYPES)) $(addprefix $(PREFIX)/geojson/,$(GEOMETRY))
 TASKS = $(addsuffix s,$(FILETYPES))
 
@@ -88,7 +88,7 @@ geojsons: $(foreach G,$(GEOMETRY),$(foreach L,$(LOCATIONS),$(PREFIX)/geojson/$G/
 # Other rules require a second expansion to state simply
 # Without ".SECONDEXPANSION" this would yield a file ending in .%
 .SECONDEXPANSION:
-qls osms epss svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
+overpassqls osms epss svgs: %s: $(foreach x,$(LOCATIONS),$(PREFIX)/%/$x.$$*)
 
 # file creation tasks in reverse-chronological order
 
@@ -118,15 +118,15 @@ $(PREFIX)/geojson/%.geojson: $(PREFIX)/osm/$$(*F).osm | $$(@D)
 .PRECIOUS: osm/%.osm
 
 # Post the query to the OSM api.
-$(PREFIX)/osm/%.osm: $(PREFIX)/ql/%.ql | $(PREFIX)/osm
+$(PREFIX)/osm/%.osm: $(PREFIX)/overpassql/%.overpassql | $(PREFIX)/osm
 	curl $(API) $(CURLFLAGS) -o $@ --data @$<
 
 # Read bounding box from the bounds file, use sed to do some quick templating on the query file
-$(PREFIX)/ql/%.ql: $(BOUNDSFILE) | $(PREFIX)/ql
 	read BBOX <<<$$(fgrep '$*' $< | cut -d, -f2-); \
 	sed -e "s/{{bbox}}/$${BBOX}/g;s/{{verbosity}}/$(VERBOSITY)/g;s,//.*,,;s/ *//" $(QUERYFILE) | \
 	tr -d '\n' | \
 	sed -e 's,/\*.*\*/,,g' > $@
+$(PREFIX)/overpassql/%.overpassql: $(BOUNDSFILE) | $(PREFIX)/overpassql
 
 # Create directories
 $(DIRS): ; mkdir -p $@
